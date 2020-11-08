@@ -8,6 +8,12 @@ const auth = require('./middlewares/auth.js');
 const { requestLogger, errorLogger } = require('./middlewares/logger.js');
 const { errors, celebrate, Joi } = require('celebrate');
 const { postLoginData, postNewUser } = require('./controllers/auth.js');
+const rateLimit = require("express-rate-limit");
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
 
 mongoose.connect('mongodb://localhost:27017/diploma', {
   useNewUrlParser: true,
@@ -17,6 +23,8 @@ mongoose.connect('mongodb://localhost:27017/diploma', {
 
 const usersRouter = require('./routes/users.js').router;
 const articlesRouter = require('./routes/articles.js').router;
+
+app.use(limiter);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({

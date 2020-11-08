@@ -11,7 +11,7 @@ const ServerError = require('../errors/server-err.js');
 const BadRequestError = require('../errors/bad-request-err.js');
 
 const postNewUser = (req, res, next) => {
-  const { email, password } = req.body;
+  const { email, password, name } = req.body;
   User.findOne({ email })
     .then((findedUser) => {
       if (findedUser) {
@@ -21,7 +21,7 @@ const postNewUser = (req, res, next) => {
         if (error) {
           throw new ServerError('Произошла ошибка на сервере');
         }
-        User.create({ email, password: hash })
+        User.create({ email, password: hash, name })
           .then((user) => {
             /* не знаю, почему не срабатывает select false для схемы */
             let sendData = JSON.stringify(user);
