@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 
-const SALT_ROUNDS = 10;
-const { JWT_SECRET = 'jwt-secret' } = process.env;
+/* const SALT_ROUNDS = 10; */
+/* const { JWT_SECRET = 'jwt-secret' } = process.env; */
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-err.js');
@@ -9,6 +9,7 @@ const UnauthorizedError = require('../errors/unauthorized-err.js');
 const ConflictError = require('../errors/conflict-err.js');
 const ServerError = require('../errors/server-err.js');
 const BadRequestError = require('../errors/bad-request-err.js');
+require('dotenv').config();
 
 const postNewUser = (req, res, next) => {
   const { email, password, name } = req.body;
@@ -17,7 +18,7 @@ const postNewUser = (req, res, next) => {
       if (findedUser) {
         throw new ConflictError('Данный пользователь уже зарегистрирован');
       }
-      bcrypt.hash(password, SALT_ROUNDS, (error, hash) => {
+      bcrypt.hash(password, process.env.SALT_ROUNDS, (error, hash) => {
         if (error) {
           throw new ServerError('Произошла ошибка на сервере');
         }
@@ -55,7 +56,7 @@ const postLoginData = (req, res, next) => {
           if (!matched) {
             throw new UnauthorizedError('Неправильная почта или пароль');
           }
-          const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
+          const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
           res.send({ _id: user._id, token });
         })
         .catch(next);

@@ -3,19 +3,20 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const app = express();
-const { PORT = 3000 } = process.env;
+/* const { PORT = 3000 } = process.env; */
 const auth = require('./middlewares/auth.js');
 const { requestLogger, errorLogger } = require('./middlewares/logger.js');
 const { errors, celebrate, Joi } = require('celebrate');
 const { postLoginData, postNewUser } = require('./controllers/auth.js');
 const rateLimit = require("express-rate-limit");
+require('dotenv').config();
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100 // limit each IP to 100 requests per windowMs
 });
 
-mongoose.connect('mongodb://localhost:27017/diploma', {
+mongoose.connect(process.env.DB_CONN, {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false
@@ -84,6 +85,6 @@ app.use((err, req, res) => {
   res.status(statusCode).send({ message: statusCode === 500 ? 'На сервере произошла ошибка' : message });
 });
 
-app.listen(PORT, () => {
-  console.log(`Приложение запущено, порт: ${PORT}`);
+app.listen(process.env.PORT, () => {
+  console.log(`Приложение запущено, порт: ${process.env.PORT}`);
 });
