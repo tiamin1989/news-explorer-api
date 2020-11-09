@@ -11,16 +11,17 @@ const NotFoundError = require('./errors/not-found-err.js');
 require('dotenv').config();
 
 const app = express();
-/* const { PORT = 3000 } = process.env; */
+
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
 });
 
 mongoose.connect(process.env.DB_CONN, {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
+  useUnifiedTopology: true,
 });
 
 const usersRouter = require('./routes/users.js').router;

@@ -4,8 +4,8 @@
   "description": "Дипломный проект для Яндекс.Практикума",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "set NODE_ENV=development && node index.js",
+    "dev": "set NODE_ENV=production && nodemon index.js"
   },
   "repository": {
     "type": "git",

@@ -2,5 +2,6 @@
 Бэкенд диплома Яндекс.Практикум
 
 Бэкенд:
-https://api.diploma1989.students.nomoreparties.space/ или
+http://api.diploma1989.students.nomoreparties.space/
+https://api.diploma1989.students.nomoreparties.space/
 178.154.235.145
