@@ -33,7 +33,7 @@ const postArticle = (req, res, next) => {
       }
     })
     .catch(next);
-}
+};
 
 const deleteArticle = (req, res, next) => {
   Article.findById(req.params.articleId)
@@ -50,7 +50,7 @@ const deleteArticle = (req, res, next) => {
       if (err.message === 'Not found') { res.status(404).send({ message: 'Запрашиваемая карточка не найдена' }); } else { throw new ServerError('Произошла ошибка на сервере'); }
     })
     .catch(next);
-}
+};
 
 module.exports = {
   getArticles,

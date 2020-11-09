@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
       validator(v) {
         return chrisoValidator.isEmail(v);
       },
-      message: 'Неправильный email'
+      message: 'Неправильный email',
     },
     unique: true,
   },
@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
     required: true,
     minlength: 2,
     maxlength: 30,
-    default: 'Укажите имя'
+    default: 'Укажите имя',
   },
 });
 

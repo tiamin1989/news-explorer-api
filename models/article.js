@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const chrisoValidator = require('validator');
 
 const articleSchema = new mongoose.Schema({
   keyword: {
@@ -31,7 +32,7 @@ const articleSchema = new mongoose.Schema({
       validator(v) {
         return chrisoValidator.isURL(v);
       },
-      message: 'Неправильная ссылка на источник статьи'
+      message: 'Неправильная ссылка на источник статьи',
     },
   },
   link: {
@@ -39,9 +40,9 @@ const articleSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator(v) {
-        return /[\d\wа-яёА-ЯЁ]+([\d\wа-яёА-ЯЁ\-]+)*/.test(v);
+        return /[\d\wа-яёА-ЯЁ]+([\d\wа-яёА-ЯЁ-]+)*/.test(v);
       },
-      message: 'Неправильная внутренняя ссылка для статьи'
+      message: 'Неправильная внутренняя ссылка для статьи',
     },
   },
   image: {
@@ -51,7 +52,7 @@ const articleSchema = new mongoose.Schema({
       validator(v) {
         return chrisoValidator.isURL(v);
       },
-      message: 'Неправильная ссылка для картинки'
+      message: 'Неправильная ссылка для картинки',
     },
   },
   owner: {

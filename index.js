@@ -2,24 +2,25 @@ const cors = require('cors');
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const app = express();
-/* const { PORT = 3000 } = process.env; */
-const auth = require('./middlewares/auth.js');
-const { requestLogger, errorLogger } = require('./middlewares/logger.js');
 const { errors, celebrate, Joi } = require('celebrate');
+const rateLimit = require('express-rate-limit');
+const { requestLogger, errorLogger } = require('./middlewares/logger.js');
 const { postLoginData, postNewUser } = require('./controllers/auth.js');
-const rateLimit = require("express-rate-limit");
+const auth = require('./middlewares/auth.js');
+const NotFoundError = require('./errors/not-found-err.js');
 require('dotenv').config();
 
+const app = express();
+/* const { PORT = 3000 } = process.env; */
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  max: 100, // limit each IP to 100 requests per windowMs
 });
 
 mongoose.connect(process.env.DB_CONN, {
   useNewUrlParser: true,
   useCreateIndex: true,
-  useFindAndModify: false
+  useFindAndModify: false,
 });
 
 const usersRouter = require('./routes/users.js').router;
