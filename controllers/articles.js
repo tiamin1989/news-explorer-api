@@ -3,11 +3,20 @@ const NotFoundError = require('../errors/not-found-err.js');
 const ServerError = require('../errors/server-err.js');
 const BadRequestError = require('../errors/bad-request-err.js');
 const ForbiddenError = require('../errors/forbidden-error.js');
+const {
+  ERR_ARTICLES_NOT_FOUND,
+  ERR_BAD_REQUEST_DATA,
+  ERR_SERVER_ERROR,
+  MESSAGE_CARD_NOT_FOUND,
+  MESSAGE_ARTICLE_DELETED,
+  ERR_NOT_FOUND,
+  ERR_FORBIDDEN_CARD,
+} = require('../utils/constants.js');
 
 const getArticles = (req, res, next) => Article.find({})
   .then((data) => {
     if (!data) {
-      throw new NotFoundError('Статьи не найдены');
+      throw new NotFoundError(ERR_ARTICLES_NOT_FOUND);
     }
     res.status(200).send(data);
   })
@@ -27,9 +36,9 @@ const postArticle = (req, res, next) => {
     .then((article) => res.status(200).send(article))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequestError('Переданы некорректные данные');
+        throw new BadRequestError(ERR_BAD_REQUEST_DATA);
       } else {
-        throw new ServerError('Произошла ошибка на сервере');
+        throw new ServerError(ERR_SERVER_ERROR);
       }
     })
     .catch(next);
@@ -37,16 +46,18 @@ const postArticle = (req, res, next) => {
 
 const deleteArticle = (req, res, next) => {
   Article.findById(req.params.articleId)
-    .orFail(new Error('Not found'))
+    .orFail(new Error(ERR_NOT_FOUND))
     .then((article) => {
       if (article.owner == req.user._id) {
         Article.findByIdAndRemove(req.params.articleId)
-          .then(() => res.status(200).send({ message: 'Статья удалена' }))
-          .catch(() => { throw new ServerError('Произошла ошибка на сервере'); });
-      } else { throw new ForbiddenError('Вы пытаетесь удалить чужую карточку'); }
+          .then(() => res.status(200).send({ message: MESSAGE_ARTICLE_DELETED }))
+          .catch(() => { throw new ServerError(ERR_SERVER_ERROR); });
+      } else { throw new ForbiddenError(ERR_FORBIDDEN_CARD); }
     })
     .catch((err) => {
-      if (err.message === 'Not found') { res.status(404).send({ message: 'Запрашиваемая карточка не найдена' }); } else { throw new ServerError('Произошла ошибка на сервере'); }
+      if (err.message == ERR_NOT_FOUND) {
+        res.status(404).send({ message: MESSAGE_CARD_NOT_FOUND });
+      } else { throw new ServerError(ERR_SERVER_ERROR); }
     })
     .catch(next);
 };

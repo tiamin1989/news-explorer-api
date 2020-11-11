@@ -3,20 +3,21 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors, celebrate, Joi } = require('celebrate');
-const rateLimit = require('express-rate-limit');
 const { requestLogger, errorLogger } = require('./middlewares/logger.js');
 const { postLoginData, postNewUser } = require('./controllers/auth.js');
 const auth = require('./middlewares/auth.js');
 const NotFoundError = require('./errors/not-found-err.js');
+const { devMongoDB, devPort } = require('./utils/dev-config.js');
+const {
+  limiter,
+  ERR_SERVER_DOWN,
+  ERR_PAGE_NOT_FOUND,
+  ERR_SERVER_ERROR,
+} = require('./utils/constants.js');
 
 const app = express();
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-});
-
-mongoose.connect(process.env.DB_CONN ? process.env.DB_CONN : 'mongodb://localhost:27017/diploma', {
+mongoose.connect(process.env.DB_CONN ? process.env.DB_CONN : devMongoDB, {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
@@ -40,7 +41,7 @@ app.use(requestLogger);
 
 app.get('/crash-test', () => {
   setTimeout(() => {
-    throw new Error('Сервер сейчас упадёт');
+    throw new Error(ERR_SERVER_DOWN);
   }, 0);
 });
 
@@ -74,7 +75,7 @@ app.use(usersRouter);
 app.use(articlesRouter);
 
 app.use('/*', () => {
-  throw new NotFoundError('Страница не найдена');
+  throw new NotFoundError(ERR_PAGE_NOT_FOUND);
 });
 
 app.use(errorLogger);
@@ -83,9 +84,9 @@ app.use(errors());
 
 app.use((err, req, res) => {
   const { statusCode = 500, message } = err;
-  res.status(statusCode).send({ message: statusCode === 500 ? 'На сервере произошла ошибка' : message });
+  res.status(statusCode).send({ message: statusCode === 500 ? ERR_SERVER_ERROR : message });
 });
 
-app.listen(process.env.PORT ? process.env.PORT : 3000, () => {
-  console.log(`Приложение запущено в режиме ${process.env.NODE_ENV ? process.env.NODE_ENV : 'development'}, порт: ${process.env.PORT ? process.env.PORT : 3000}`);
+app.listen(process.env.PORT ? process.env.PORT : devPort, () => {
+  console.log(`Приложение запущено в режиме ${process.env.NODE_ENV ? process.env.NODE_ENV : 'development'}, порт: ${process.env.PORT ? process.env.PORT : devPort}`);
 });

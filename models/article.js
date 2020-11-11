@@ -1,5 +1,10 @@
 const mongoose = require('mongoose');
 const chrisoValidator = require('validator');
+const {
+  MESSAGE_WRONG_ARTICLE_SOURCE_URL,
+  MESSAGE_WRONG_INTERNAL_ARTICLE_URL,
+  MESSAGE_WRONG_IMAGE_URL,
+} = require('../utils/constants.js');
 
 const articleSchema = new mongoose.Schema({
   keyword: {
@@ -32,7 +37,7 @@ const articleSchema = new mongoose.Schema({
       validator(v) {
         return chrisoValidator.isURL(v);
       },
-      message: 'Неправильная ссылка на источник статьи',
+      message: MESSAGE_WRONG_ARTICLE_SOURCE_URL,
     },
   },
   link: {
@@ -42,7 +47,7 @@ const articleSchema = new mongoose.Schema({
       validator(v) {
         return /[\d\wа-яёА-ЯЁ]+([\d\wа-яёА-ЯЁ-]+)*/.test(v);
       },
-      message: 'Неправильная внутренняя ссылка для статьи',
+      message: MESSAGE_WRONG_INTERNAL_ARTICLE_URL,
     },
   },
   image: {
@@ -52,7 +57,7 @@ const articleSchema = new mongoose.Schema({
       validator(v) {
         return chrisoValidator.isURL(v);
       },
-      message: 'Неправильная ссылка для картинки',
+      message: MESSAGE_WRONG_IMAGE_URL,
     },
   },
   owner: {

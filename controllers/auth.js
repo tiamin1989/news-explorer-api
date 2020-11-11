@@ -6,34 +6,43 @@ const UnauthorizedError = require('../errors/unauthorized-err.js');
 const ConflictError = require('../errors/conflict-err.js');
 const ServerError = require('../errors/server-err.js');
 const BadRequestError = require('../errors/bad-request-err.js');
-
-const SALT_ROUNDS = 10;
+const { devJWT, devSalt } = require('../utils/dev-config.js');
+const {
+  ERR_USER_EXISTS,
+  ERR_SERVER_ERROR,
+  MESSAGE_YOUR_PASSWORD,
+  ERR_BAD_REQUEST_DATA,
+  ERR_USER_NOT_EXISTS,
+  ERR_EMAIL_PASSWORD_WRONG,
+} = require('../utils/constants.js');
 
 const postNewUser = (req, res, next) => {
   const { email, password, name } = req.body;
   User.findOne({ email })
     .then((findedUser) => {
       if (findedUser) {
-        throw new ConflictError('Данный пользователь уже зарегистрирован');
+        throw new ConflictError(ERR_USER_EXISTS);
       }
-      bcrypt.hash(password, SALT_ROUNDS, (error, hash) => {
-        if (error) {
-          throw new ServerError('Произошла ошибка на сервере');
-        }
-        User.create({ email, password: hash, name })
-          .then((user) => {
-            user.password = 'the password you specified';
-            res.status(200).send(user);
-          })
-          .catch((err) => {
-            if (err.name === 'ValidationError') {
-              throw new BadRequestError('Переданы некорректные данные');
-            } else {
-              throw new ServerError('Произошла ошибка на сервере');
-            }
-          })
-          .catch(next);
-      });
+      bcrypt.hash(password,
+        process.env.SALT_ROUNDS ? Number(process.env.SALT_ROUNDS) : devSalt,
+        (error, hash) => {
+          if (error) {
+            throw new ServerError(ERR_SERVER_ERROR);
+          }
+          User.create({ email, password: hash, name })
+            .then((user) => {
+              user.password = MESSAGE_YOUR_PASSWORD;
+              res.status(200).send(user);
+            })
+            .catch((err) => {
+              if (err.name === 'ValidationError') {
+                throw new BadRequestError(ERR_BAD_REQUEST_DATA);
+              } else {
+                throw new ServerError(ERR_SERVER_ERROR);
+              }
+            })
+            .catch(next);
+        });
     })
     .catch(next);
 };
@@ -44,16 +53,16 @@ const postLoginData = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Нет пользователя с таким email');
+        throw new NotFoundError(ERR_USER_NOT_EXISTS);
       }
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            throw new UnauthorizedError('Неправильная почта или пароль');
+            throw new UnauthorizedError(ERR_EMAIL_PASSWORD_WRONG);
           }
           const token = jwt.sign(
             { _id: user._id },
-            process.env.JWT_SECRET ? process.env.JWT_SECRET : 'jwt-secret',
+            process.env.JWT_SECRET ? process.env.JWT_SECRET : devJWT,
             { expiresIn: '7d' },
           );
           res.send({ _id: user._id, token });
