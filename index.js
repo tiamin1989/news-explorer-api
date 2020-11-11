@@ -50,7 +50,7 @@ app.post('/signin', celebrate({
       .email()
       .required(),
     password: Joi.string()
-      .alphanum()
+      .regex(/[^-\s]/)
       .required()
       .min(8),
   }).unknown(true),
@@ -62,7 +62,7 @@ app.post('/signup', celebrate({
       .email()
       .required(),
     password: Joi.string()
-      .alphanum()
+      .regex(/[^-\s]/)
       .required()
       .min(8),
   }).unknown(true),

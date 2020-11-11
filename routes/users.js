@@ -8,7 +8,6 @@ const {
 router.get('/users/me', celebrate({
   headers: Joi.object().keys({
     authorization: Joi.string().required().regex(/Bearer ([A-Za-z.])\w+/),
-    /* authorization: Joi.string().required().token(), */
   }).unknown(true),
 }), getMe);
 
