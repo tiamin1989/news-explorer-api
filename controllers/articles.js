@@ -39,7 +39,6 @@ const deleteArticle = (req, res, next) => {
   Article.findById(req.params.articleId)
     .orFail(new Error('Not found'))
     .then((article) => {
-      // eslint-disable-next-line eqeqeq
       if (article.owner == req.user._id) {
         Article.findByIdAndRemove(req.params.articleId)
           .then(() => res.status(200).send({ message: 'Статья удалена' }))

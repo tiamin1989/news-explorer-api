@@ -22,7 +22,6 @@ const postNewUser = (req, res, next) => {
         }
         User.create({ email, password: hash, name })
           .then((user) => {
-            /* eslint no-param-reassign: "error" */
             user.password = 'the password you specified';
             res.status(200).send(user);
           })
