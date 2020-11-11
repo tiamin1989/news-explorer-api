@@ -6,7 +6,6 @@ const UnauthorizedError = require('../errors/unauthorized-err.js');
 const ConflictError = require('../errors/conflict-err.js');
 const ServerError = require('../errors/server-err.js');
 const BadRequestError = require('../errors/bad-request-err.js');
-require('dotenv').config();
 
 const SALT_ROUNDS = 10;
 
@@ -55,7 +54,7 @@ const postLoginData = (req, res, next) => {
           }
           const token = jwt.sign(
             { _id: user._id },
-            process.env.NODE_ENV === 'production' ? process.env.JWT_SECRET : 'jwt-secret',
+            process.env.JWT_SECRET ? process.env.JWT_SECRET : 'jwt-secret',
             { expiresIn: '7d' },
           );
           res.send({ _id: user._id, token });

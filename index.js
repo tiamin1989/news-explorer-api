@@ -8,7 +8,6 @@ const { requestLogger, errorLogger } = require('./middlewares/logger.js');
 const { postLoginData, postNewUser } = require('./controllers/auth.js');
 const auth = require('./middlewares/auth.js');
 const NotFoundError = require('./errors/not-found-err.js');
-require('dotenv').config();
 
 const app = express();
 
@@ -17,7 +16,7 @@ const limiter = rateLimit({
   max: 100,
 });
 
-mongoose.connect(process.env.DB_CONN, {
+mongoose.connect(process.env.DB_CONN ? process.env.DB_CONN : 'mongodb://localhost:27017/diploma', {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
@@ -87,6 +86,6 @@ app.use((err, req, res) => {
   res.status(statusCode).send({ message: statusCode === 500 ? 'На сервере произошла ошибка' : message });
 });
 
-app.listen(process.env.PORT, () => {
-  console.log(`Приложение запущено, порт: ${process.env.PORT}`);
+app.listen(process.env.PORT ? process.env.PORT : 3000, () => {
+  console.log(`Приложение запущено в режиме ${process.env.NODE_ENV ? process.env.NODE_ENV : 'development'}, порт: ${process.env.PORT ? process.env.PORT : 3000}`);
 });
