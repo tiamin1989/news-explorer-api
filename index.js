@@ -2,20 +2,24 @@ const cors = require('cors');
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { errors, celebrate, Joi } = require('celebrate');
+const helmet = require('helmet');
+const { errors } = require('celebrate');
 const { requestLogger, errorLogger } = require('./middlewares/logger.js');
-const { postLoginData, postNewUser } = require('./controllers/auth.js');
-const auth = require('./middlewares/auth.js');
+const { auth } = require('./middlewares/auth.js');
+const { errorHandler } = require('./middlewares/error-handler.js');
 const NotFoundError = require('./errors/not-found-err.js');
 const { devMongoDB, devPort } = require('./utils/dev-config.js');
 const {
   limiter,
-  ERR_SERVER_DOWN,
   ERR_PAGE_NOT_FOUND,
-  ERR_SERVER_ERROR,
 } = require('./utils/constants.js');
 
 const app = express();
+
+app.use(helmet({
+  contentSecurityPolicy: false,
+  hsts: false,
+}));
 
 mongoose.connect(process.env.DB_CONN ? process.env.DB_CONN : devMongoDB, {
   useNewUrlParser: true,
@@ -26,6 +30,9 @@ mongoose.connect(process.env.DB_CONN ? process.env.DB_CONN : devMongoDB, {
 
 const usersRouter = require('./routes/users.js').router;
 const articlesRouter = require('./routes/articles.js').router;
+const testsRouter = require('./routes/tests.js').router;
+const signInRouter = require('./routes/sign-in.js').router;
+const signUpRouter = require('./routes/sign-up.js').router;
 
 app.use(limiter);
 
@@ -39,35 +46,11 @@ app.options('*', cors());
 
 app.use(requestLogger);
 
-app.get('/crash-test', () => {
-  setTimeout(() => {
-    throw new Error(ERR_SERVER_DOWN);
-  }, 0);
-});
+app.use(testsRouter);
 
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string()
-      .email()
-      .required(),
-    password: Joi.string()
-      .regex(/[^-\s]/)
-      .required()
-      .min(8),
-  }).unknown(true),
-}), postLoginData);
+app.use(signInRouter);
 
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string()
-      .email()
-      .required(),
-    password: Joi.string()
-      .regex(/[^-\s]/)
-      .required()
-      .min(8),
-  }).unknown(true),
-}), postNewUser);
+app.use(signUpRouter);
 
 app.use(auth);
 
@@ -82,10 +65,7 @@ app.use(errorLogger);
 
 app.use(errors());
 
-app.use((err, req, res) => {
-  const { statusCode = 500, message } = err;
-  res.status(statusCode).send({ message: statusCode === 500 ? ERR_SERVER_ERROR : message });
-});
+app.use(errorHandler);
 
 app.listen(process.env.PORT ? process.env.PORT : devPort, () => {
   console.log(`Приложение запущено в режиме ${process.env.NODE_ENV ? process.env.NODE_ENV : 'development'}, порт: ${process.env.PORT ? process.env.PORT : devPort}`);

@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const chrisoValidator = require('validator');
 const {
   MESSAGE_WRONG_EMAIL,
-  DEF_PROVIDE_NAME,
 } = require('../utils/constants.js');
 
 const userSchema = new mongoose.Schema({
@@ -27,7 +26,6 @@ const userSchema = new mongoose.Schema({
     required: true,
     minlength: 2,
     maxlength: 30,
-    default: DEF_PROVIDE_NAME,
   },
 });
 

@@ -10,9 +10,9 @@ const {
 const getMe = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(new Error(ERR_NOT_FOUND))
-    .then((data) => res.status(200).send(data))
+    .then((data) => res.send(data))
     .catch((err) => {
-      if (err.message == ERR_NOT_FOUND) {
+      if (err.message === ERR_NOT_FOUND) {
         throw new NotFoundError(ERR_CURRENT_USER_NOT_EXISTS);
       } else { throw new ServerError(ERR_SERVER_ERROR); }
     })

@@ -20,14 +20,11 @@ const ERR_EMAIL_PASSWORD_WRONG = 'Неправильная почта или п�
 
 const MESSAGE_CARD_NOT_FOUND = 'Запрашиваемая карточка не найдена';
 const MESSAGE_ARTICLE_DELETED = 'Статья удалена';
-const MESSAGE_YOUR_PASSWORD = 'Указанный вами пароль';
 const MESSAGE_NEED_AUTHORIZATION = 'Необходима авторизация';
 const MESSAGE_WRONG_ARTICLE_SOURCE_URL = 'Неправильная ссылка на источник статьи';
 const MESSAGE_WRONG_INTERNAL_ARTICLE_URL = 'Неправильная внутренняя ссылка для статьи';
 const MESSAGE_WRONG_IMAGE_URL = 'Неправильная ссылка для картинки';
 const MESSAGE_WRONG_EMAIL = 'Неправильный email';
-
-const DEF_PROVIDE_NAME = 'Укажите имя';
 
 module.exports = {
   limiter,
@@ -40,7 +37,6 @@ module.exports = {
   MESSAGE_CARD_NOT_FOUND,
   MESSAGE_ARTICLE_DELETED,
   ERR_USER_EXISTS,
-  MESSAGE_YOUR_PASSWORD,
   ERR_USER_NOT_EXISTS,
   ERR_EMAIL_PASSWORD_WRONG,
   ERR_CURRENT_USER_NOT_EXISTS,
@@ -50,5 +46,4 @@ module.exports = {
   MESSAGE_WRONG_INTERNAL_ARTICLE_URL,
   MESSAGE_WRONG_IMAGE_URL,
   MESSAGE_WRONG_EMAIL,
-  DEF_PROVIDE_NAME,
 };

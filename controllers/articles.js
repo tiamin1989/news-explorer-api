@@ -18,12 +18,13 @@ const getArticles = (req, res, next) => Article.find({})
     if (!data) {
       throw new NotFoundError(ERR_ARTICLES_NOT_FOUND);
     }
-    res.status(200).send(data);
+    res.send(data);
   })
   .catch(next);
 
 const postArticle = (req, res, next) => {
   const articleToPost = {
+    date: req.body.date,
     keyword: req.body.keyword,
     title: req.body.title,
     text: req.body.text,
@@ -33,7 +34,7 @@ const postArticle = (req, res, next) => {
     owner: req.user,
   };
   Article.create(articleToPost)
-    .then((article) => res.status(200).send(article))
+    .then((article) => res.send(article))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         throw new BadRequestError(ERR_BAD_REQUEST_DATA);
@@ -48,15 +49,18 @@ const deleteArticle = (req, res, next) => {
   Article.findById(req.params.articleId)
     .orFail(new Error(ERR_NOT_FOUND))
     .then((article) => {
-      if (article.owner == req.user._id) {
+      if (article.owner.equals(req.user._id)) {
         Article.findByIdAndRemove(req.params.articleId)
-          .then(() => res.status(200).send({ message: MESSAGE_ARTICLE_DELETED }))
+          .then(() => res.send({ message: MESSAGE_ARTICLE_DELETED }))
           .catch(() => { throw new ServerError(ERR_SERVER_ERROR); });
       } else { throw new ForbiddenError(ERR_FORBIDDEN_CARD); }
     })
     .catch((err) => {
-      if (err.message == ERR_NOT_FOUND) {
-        res.status(404).send({ message: MESSAGE_CARD_NOT_FOUND });
+      if (err.message === ERR_FORBIDDEN_CARD) {
+        throw new ForbiddenError(ERR_FORBIDDEN_CARD);
+      }
+      if (err.message === ERR_NOT_FOUND) {
+        throw new NotFoundError(MESSAGE_CARD_NOT_FOUND);
       } else { throw new ServerError(ERR_SERVER_ERROR); }
     })
     .catch(next);

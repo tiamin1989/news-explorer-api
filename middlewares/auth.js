@@ -3,16 +3,17 @@ const { devJWT } = require('../utils/dev-config');
 const {
   MESSAGE_NEED_AUTHORIZATION,
 } = require('../utils/constants.js');
+const UnauthorizedError = require('../errors/unauthorized-err.js');
 
-const handleAuthError = (res) => {
-  res.status(401).send({ message: MESSAGE_NEED_AUTHORIZATION });
+const handleAuthError = () => {
+  throw new UnauthorizedError(MESSAGE_NEED_AUTHORIZATION);
 };
 const extractBearerToken = (header) => header.replace('Bearer ', '');
 
-module.exports = (req, res, next) => {
+function auth(req, res, next) {
   const { authorization } = req.headers;
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    return handleAuthError(res);
+    return handleAuthError();
   }
   const token = extractBearerToken(authorization);
   let payload;
@@ -22,5 +23,9 @@ module.exports = (req, res, next) => {
     return handleAuthError(res);
   }
   req.user = payload;
-  next();
+  return next();
+}
+
+module.exports = {
+  auth,
 };

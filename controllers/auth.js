@@ -1,7 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const NotFoundError = require('../errors/not-found-err.js');
 const UnauthorizedError = require('../errors/unauthorized-err.js');
 const ConflictError = require('../errors/conflict-err.js');
 const ServerError = require('../errors/server-err.js');
@@ -10,9 +9,7 @@ const { devJWT, devSalt } = require('../utils/dev-config.js');
 const {
   ERR_USER_EXISTS,
   ERR_SERVER_ERROR,
-  MESSAGE_YOUR_PASSWORD,
   ERR_BAD_REQUEST_DATA,
-  ERR_USER_NOT_EXISTS,
   ERR_EMAIL_PASSWORD_WRONG,
 } = require('../utils/constants.js');
 
@@ -31,8 +28,11 @@ const postNewUser = (req, res, next) => {
           }
           User.create({ email, password: hash, name })
             .then((user) => {
-              user.password = MESSAGE_YOUR_PASSWORD;
-              res.status(200).send(user);
+              res.send({
+                name: user.name,
+                _id: user._id,
+                email: user.email,
+              });
             })
             .catch((err) => {
               if (err.name === 'ValidationError') {
@@ -53,7 +53,7 @@ const postLoginData = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw new NotFoundError(ERR_USER_NOT_EXISTS);
+        throw new UnauthorizedError(ERR_EMAIL_PASSWORD_WRONG);
       }
       return bcrypt.compare(password, user.password)
         .then((matched) => {
