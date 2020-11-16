@@ -22,8 +22,6 @@ const articleSchema = new mongoose.Schema({
   text: {
     type: String,
     required: true,
-    minlength: 250,
-    maxlength: 2500,
   },
   date: {
     type: Date,
@@ -33,19 +31,13 @@ const articleSchema = new mongoose.Schema({
   source: {
     type: String,
     required: true,
-    validate: {
-      validator(v) {
-        return chrisoValidator.isURL(v);
-      },
-      message: MESSAGE_WRONG_ARTICLE_SOURCE_URL,
-    },
   },
   link: {
     type: String,
     required: true,
     validate: {
       validator(v) {
-        return /[\d\wа-яёА-ЯЁ]+([\d\wа-яёА-ЯЁ-]+)*/.test(v);
+        return chrisoValidator.isURL(v);
       },
       message: MESSAGE_WRONG_INTERNAL_ARTICLE_URL,
     },
